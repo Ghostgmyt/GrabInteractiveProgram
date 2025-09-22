@@ -5,23 +5,30 @@ using namespace std;
 int main() {
     cout << "=== GRAB Fare & ETA Estimator ===\n";
 
-    // ---------- PRESET INPUTS (edit these before Run) ----------
-    double distance = 6.0;  // km [0.5..100]
-    int hour        = 18;   // 0..23
-    int demand      = 9;    // 1..10
-    int supply      = 3;    // 1..10
-    int tier        = 2;    // 1=Basic, 2=Silver, 3=Gold
-    int service     = 1;    // 1=Standard, 2=Pool
-    int toll        = 2;    // flat RM toll fee to add
+    // ---------- Variables ----------
+    double distance;    // km [0.5..100]
+    int hour;           // 0..23
+    int demand;         // 1..10
+    int supply;         // 1..10
+    int tier;           // 1=Basic, 2=Silver, 3=Gold
+    int service;        // 1=Standard, 2=Pool
+    int toll;           // flat RM toll fee
 
     // ---------- "Questions" and answers ----------
-    cout << "Enter trip distance in km (0.5 - 100): " << distance << "\n";
-    cout << "Enter the hour of the day (0 - 23): " << hour << "\n";
-    cout << "On a scale of 1 to 10, how high is the demand? " << demand << "\n";
-    cout << "On a scale of 1 to 10, how many drivers (supply) are available? " << supply << "\n";
-    cout << "Choose your tier (1 = Basic, 2 = Silver, 3 = Gold): " << tier << "\n";
-    cout << "Choose service type (1 = Standard, 2 = Pool): " << service << "\n";
-    cout << "Enter toll charges (RM): " << toll << "\n";
+    cout << "Enter trip distance in km (0.5 - 100): ";
+    cin >> distance;
+    cout << "Enter the hour of the day (0 - 23): ";
+    cin >> hour;
+    cout << "On a scale of 1 to 10, how high is the demand? ";
+    cin >> demand;
+    cout << "On a scale of 1 to 10, how many drivers (supply) are available? ";
+    cin >> supply;
+    cout << "Choose your tier (1 = Basic, 2 = Silver, 3 = Gold): ";
+    cin >> tier;
+    cout << "Choose service type (1 = Standard, 2 = Pool): ";
+    cin >> service;
+    cout << "Enter toll charges (RM): ";
+    cin >> toll;
 
     // ---------- Basic validation ----------
     if (distance < 0.5) distance = 0.5;
@@ -58,12 +65,12 @@ int main() {
     else if (tier == 3) disc = 0.15;
 
     // fare calculation
-    double subtotal = (base + perKm * distance + perMin * eta) * surge;
+    double subtotal   = (base + perKm * distance + perMin * eta) * surge;
     double discounted = subtotal * (1.0 - disc);
-    double total = discounted + toll;
 
-    // round to nearest whole number
-    int finalFare = (int)round(total);
+    // round ride fare, add toll separately
+    int rideFare  = (int)round(discounted);
+    int finalFare = rideFare + toll;
 
     // ---------- Output ----------
     cout << "\n--- Fare Result ---\n";
@@ -72,6 +79,7 @@ int main() {
     cout << "ETA (minutes) : " << (int)round(eta) << "\n";
     cout << "Surge         : x" << surge << "\n";
     cout << "Tier Discount : " << (int)(disc*100) << "%\n";
+    cout << "Ride Fare     : RM " << rideFare << "\n";
     cout << "Toll Charges  : RM " << toll << "\n";
     cout << "Estimated Fare: RM " << finalFare << "\n";
 
