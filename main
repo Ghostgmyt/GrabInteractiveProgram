@@ -3,7 +3,7 @@
 using namespace std;
 
 int main() {
-    cout << "=== GRAB Fare & ETA Estimator (Student Version) ===\n";
+    cout << "=== GRAB Fare & ETA Estimator ===\n";
 
     // ---------- PRESET INPUTS (edit these before Run) ----------
     double distance = 6.0;  // km [0.5..100]
