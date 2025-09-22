@@ -1,0 +1,87 @@
+#include <iostream>
+#include <iomanip>
+using namespace std;
+
+int main() {
+    // Simple GRAB Fare & ETA Estimator (student level)
+    double distance;    // km (0.5 - 100)
+    int hour;           // 0-23
+    int demand;         // 1-10
+    int supply;         // 1-10
+    int tier;           // 1=Basic, 2=Silver, 3=Gold
+    int service;        // 1=Standard, 2=Pool
+
+    cout << "=== GRAB Fare & ETA Estimator (Simple) ===\n";
+    cout << "Distance (km) [0.5-100]: ";
+    cin >> distance;
+    cout << "Hour (0-23): ";
+    cin >> hour;
+    cout << "Demand level (1-10): ";
+    cin >> demand;
+    cout << "Supply level (1-10): ";
+    cin >> supply;
+    cout << "Tier (1=Basic, 2=Silver, 3=Gold): ";
+    cin >> tier;
+    cout << "Service (1=Standard, 2=Pool): ";
+    cin >> service;
+
+    // Basic clamping to keep values sensible
+    if (distance < 0.5) distance = 0.5;
+    if (distance > 100.0) distance = 100.0;
+    if (hour < 0) hour = 0; if (hour > 23) hour = 23;
+    if (demand < 1) demand = 1; if (demand > 10) demand = 10;
+    if (supply < 1) supply = 1; if (supply > 10) supply = 10;
+    if (tier < 1) tier = 1; if (tier > 3) tier = 3;
+    if (service < 1) service = 1; if (service > 2) service = 2;
+
+    // Rates (RM). Standard slightly higher than Pool.
+    double base, perKm, perMin;
+    if (service == 1) { base = 2.50; perKm = 1.35; perMin = 0.25; }
+    else              { base = 1.80; perKm = 1.00; perMin = 0.20; }
+
+    // ETA (minutes): slower at peak hours (7-9am, 5-8pm)
+    double speedKmph = 32.0;
+    if ((hour >= 7 && hour <= 9) || (hour >= 17 && hour <= 20)) {
+        speedKmph = 22.0;
+    }
+    double eta = (distance / speedKmph) * 60.0;
+    if (eta < 5.0) eta = 5.0;
+
+    // Surge: higher when demand > supply; small bump at peaks; cap at 3.5x
+    double surge = 1.0;
+    double ratio = (double)demand / (double)supply; // supply >=1 after clamp
+    if (ratio > 1.0) surge = surge + (ratio - 1.0);
+    if ((hour >= 7 && hour <= 9) || (hour >= 17 && hour <= 20)) {
+        surge = surge + 0.25;
+    }
+    if (surge > 3.5) surge = 3.5;
+
+    // Tier discount %
+    double discPc = 0.0;
+    if (tier == 2) discPc = 7.0;
+    else if (tier == 3) discPc = 15.0;
+
+    // Fare
+    double subtotal = (base + perKm * distance + perMin * eta) * surge;
+    double total = subtotal * (1.0 - discPc / 100.0);
+
+    // Output
+    cout << fixed << setprecision(2);
+    cout << "\n--- Result (Grab-style) ---\n";
+    cout << "Service        : " << (service == 1 ? "Standard" : "Pool") << "\n";
+    cout << "Distance (km)  : " << distance << "\n";
+    cout << "ETA (minutes)  : " << eta << "\n";
+    cout << "Surge          : x" << surge << "\n";
+    cout << "Tier Discount  : " << discPc << "%\n";
+    cout << "Estimated Fare : RM " << total << "\n";
+
+    // Simple recommendation
+    if (surge >= 2.0 && distance <= 8.0 && service == 1) {
+        cout << "Tip: POOL may be cheaper now due to high surge on a short trip.\n";
+    } else if (service == 2) {
+        cout << "Note: STANDARD may be faster if you’re in a hurry.\n";
+    } else {
+        cout << "Looks reasonable for current conditions.\n";
+    }
+    return 0;
+}
