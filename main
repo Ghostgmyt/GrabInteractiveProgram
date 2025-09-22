@@ -12,7 +12,7 @@ int main() {
     int supply;         // 1..10
     int tier;           // 1=Basic, 2=Silver, 3=Gold
     int service;        // 1=Standard, 2=Pool
-    int toll;           // flat RM toll fee
+    double toll = 0.0;  // toll fee, default 0
 
     // ---------- "Questions" and answers ----------
     cout << "Enter trip distance in km (0.5 - 100): ";
@@ -27,8 +27,16 @@ int main() {
     cin >> tier;
     cout << "Choose service type (1 = Standard, 2 = Pool): ";
     cin >> service;
-    cout << "Enter toll charges (RM): ";
-    cin >> toll;
+
+    // ask if tolls apply
+    char tollChoice;
+    cout << "Are there any toll charges? (y/n): ";
+    cin >> tollChoice;
+    if (tollChoice == 'y' || tollChoice == 'Y') {
+        cout << "Enter toll charges (RM): ";
+        cin >> toll;
+        if (toll < 0) toll = 0.0; // basic guard
+    }
 
     // ---------- Basic validation ----------
     if (distance < 0.5) distance = 0.5;
@@ -38,7 +46,6 @@ int main() {
     if (supply <= 0) supply = 1; if (supply > 10) supply = 10;
     if (tier < 1) tier = 1; if (tier > 3) tier = 3;
     if (service < 1) service = 1; if (service > 2) service = 2;
-    if (toll < 0) toll = 0;
 
     // ---------- Logic ----------
     // rates
@@ -68,9 +75,11 @@ int main() {
     double subtotal   = (base + perKm * distance + perMin * eta) * surge;
     double discounted = subtotal * (1.0 - disc);
 
-    // round ride fare, add toll separately
-    int rideFare  = (int)round(discounted);
-    int finalFare = rideFare + toll;
+    // round ride fare only
+    int rideFare = (int)round(discounted);
+
+    // final fare = ride fare + toll (toll may have decimals)
+    double finalFare = rideFare + toll;
 
     // ---------- Output ----------
     cout << "\n--- Fare Result ---\n";
@@ -80,14 +89,16 @@ int main() {
     cout << "Surge         : x" << surge << "\n";
     cout << "Tier Discount : " << (int)(disc*100) << "%\n";
     cout << "Ride Fare     : RM " << rideFare << "\n";
-    cout << "Toll Charges  : RM " << toll << "\n";
+    if (toll > 0) {
+        cout << "Toll Charges  : RM " << toll << "\n";
+    }
     cout << "Estimated Fare: RM " << finalFare << "\n";
 
     // tip
     if (surge >= 2.0 && distance <= 8.0 && service == 1) {
         cout << "Tip: POOL may be cheaper now due to high surge on a short trip.\n";
     } else if (service == 2) {
-        cout << "Note: STANDARD may be faster if you’re in a hurry.\n";
+        cout << "Note: STANDARD may be faster if you're in a hurry.\n";
     }
 
     return 0;
