@@ -47,7 +47,7 @@ int main() {
     double eta = (distance / speedKmph) * 60.0;
     if (eta < 5.0) eta = 5.0;
 
-    
+    // Surge: higher when demand > supply; small bump at peaks; cap at 3.5x
     double surge = 1.0;
     double ratio = (double)demand / (double)supply; // supply >=1 after clamp
     if (ratio > 1.0) surge = surge + (ratio - 1.0);
