@@ -1,129 +1,85 @@
 #include <iostream>
-#include <iomanip>
+#include <cmath>    // for round
 using namespace std;
 
 int main() {
-    cout << "=== GRAB Fare & ETA Estimator (Student Version + Upgrades) ===\n";
+    cout << "=== GRAB Fare & ETA Estimator (Student Version) ===\n";
 
     // ---------- PRESET INPUTS (edit these before Run) ----------
     double distance = 6.0;  // km [0.5..100]
     int hour        = 18;   // 0..23
     int demand      = 9;    // 1..10
-    int supply      = 3;    // 1..10 (if <=0 we will guard to 1)
+    int supply      = 3;    // 1..10
     int tier        = 2;    // 1=Basic, 2=Silver, 3=Gold
-    // Extra options
-    int PROMO_ON    = 1;    // 0=off, 1=on
-    double PROMO_FLAT = 3.0; // RM flat off if PROMO_ON==1
-    bool COMPARE_BOTH = true; // print Standard vs Pool in one run
+    int service     = 1;    // 1=Standard, 2=Pool
+    int toll        = 2;    // flat RM toll fee to add
 
-    // ---------- Echo "questions" and answers ----------
+    // ---------- "Questions" and answers ----------
     cout << "Enter trip distance in km (0.5 - 100): " << distance << "\n";
     cout << "Enter the hour of the day (0 - 23): " << hour << "\n";
     cout << "On a scale of 1 to 10, how high is the demand? " << demand << "\n";
     cout << "On a scale of 1 to 10, how many drivers (supply) are available? " << supply << "\n";
     cout << "Choose your tier (1 = Basic, 2 = Silver, 3 = Gold): " << tier << "\n";
-    cout << "Promo code active? (0=No,1=Yes): " << PROMO_ON << "\n";
-    cout << "Compare Standard vs Pool in one run? (0/1): " << (COMPARE_BOTH?1:0) << "\n";
+    cout << "Choose service type (1 = Standard, 2 = Pool): " << service << "\n";
+    cout << "Enter toll charges (RM): " << toll << "\n";
 
-    // ---------- Basic validation / clamping ----------
-    if (distance < 0.5) { cout << "Note: distance too small, clamped to 0.5 km.\n"; distance = 0.5; }
-    if (distance > 100.0){ cout << "Note: distance too large, clamped to 100 km.\n"; distance = 100.0; }
-    if (hour < 0) { cout << "Note: hour <0, set to 0.\n"; hour = 0; }
-    if (hour > 23){ cout << "Note: hour >23, set to 23.\n"; hour = 23; }
-    if (demand < 1){ cout << "Note: demand <1, set to 1.\n"; demand = 1; }
-    if (demand > 10){ cout << "Note: demand >10, set to 10.\n"; demand = 10; }
-    if (supply <= 0){ cout << "Note: supply <=0, set to 1 to avoid division by zero.\n"; supply = 1; }
-    if (supply > 10){ cout << "Note: supply >10, set to 10.\n"; supply = 10; }
-    if (tier < 1){ tier = 1; } if (tier > 3){ tier = 3; }
+    // ---------- Basic validation ----------
+    if (distance < 0.5) distance = 0.5;
+    if (distance > 100.0) distance = 100.0;
+    if (hour < 0) hour = 0; if (hour > 23) hour = 23;
+    if (demand < 1) demand = 1; if (demand > 10) demand = 10;
+    if (supply <= 0) supply = 1; if (supply > 10) supply = 10;
+    if (tier < 1) tier = 1; if (tier > 3) tier = 3;
+    if (service < 1) service = 1; if (service > 2) service = 2;
+    if (toll < 0) toll = 0;
 
-    // ---------- Small helpers (inline student style) ----------
-    auto etaMinutes = [&](double km, int h){
-        double speed = 32.0;
-        bool peak = (h>=7 && h<=9) || (h>=17 && h<=20);
-        if (peak) speed = 22.0;                // slower at peak
-        double mins = (km / speed) * 60.0;
-        if (mins < 5.0) mins = 5.0;            // min ETA
-        return mins;
-    };
-    auto surgeMult = [&](int d, int s, int h){
-        double ratio = (double)d / (double)s;  // s>=1 guaranteed
-        double surge = 1.0;
-        if (ratio > 1.0) surge += (ratio - 1.0); // demand > supply
-        bool peak = (h>=7 && h<=9) || (h>=17 && h<=20);
-        if (peak) surge += 0.25;               // small peak bump
-        if (h>=22 || h<=5) surge += 0.10;      // +10% night surcharge
-        if (surge > 3.5) surge = 3.5;          // cap
-        return surge;
-    };
-    auto tierDisc = [&](int t){
-        if (t==3) return 0.15; // Gold 15%
-        if (t==2) return 0.07; // Silver 7%
-        return 0.0;            // Basic
-    };
+    // ---------- Logic ----------
+    // rates
+    double base, perKm, perMin;
+    if (service == 1) { base = 3.0; perKm = 1.5; perMin = 0.3; } // Standard
+    else              { base = 2.0; perKm = 1.0; perMin = 0.2; } // Pool
 
-    // ---------- Fare calculator for a given service ----------
-    auto calcFare = [&](int service){ // 1=Standard, 2=Pool
-        // Rates
-        double base, perKm, perMin;
-        if (service==1){ base=2.50; perKm=1.35; perMin=0.25; }  // Standard
-        else            { base=1.80; perKm=1.00; perMin=0.20; } // Pool
+    // ETA (minutes) with slower speed at peaks
+    double speed = 32.0;
+    if ((hour >= 7 && hour <= 9) || (hour >= 17 && hour <= 20)) speed = 22.0;
+    double eta = (distance / speed) * 60.0;
+    if (eta < 5.0) eta = 5.0;
 
-        // Time & multipliers
-        double eta = etaMinutes(distance, hour);
-        double surge = surgeMult(demand, supply, hour);
+    // surge
+    double ratio = (double)demand / (double)supply;
+    double surge = 1.0;
+    if (ratio > 1.0) surge += (ratio - 1.0);
+    if ((hour >= 7 && hour <= 9) || (hour >= 17 && hour <= 20)) surge += 0.25;
+    if (surge > 3.5) surge = 3.5;
 
-        // Booking fee + minimum fare rules
-        const double BOOKING_FEE = 1.20;
-        const double MIN_FARE   = 5.00;
+    // tier discount
+    double disc = 0.0;
+    if (tier == 2) disc = 0.07;
+    else if (tier == 3) disc = 0.15;
 
-        // Subtotal before discounts/fees
-        double subtotal = (base + perKm*distance + perMin*eta) * surge;
+    // fare calculation
+    double subtotal = (base + perKm * distance + perMin * eta) * surge;
+    double discounted = subtotal * (1.0 - disc);
+    double total = discounted + toll;
 
-        // Tier discount
-        double afterTier = subtotal * (1.0 - tierDisc(tier));
-
-        // Promo (flat off, never below 0)
-        double afterPromo = afterTier;
-        if (PROMO_ON == 1){
-            afterPromo -= 3.0; // GRAB3 style flat RM3 off
-            if (afterPromo < 0.0) afterPromo = 0.0;
-        }
-
-        // Add booking fee, then enforce minimum fare
-        double total = afterPromo + BOOKING_FEE;
-        if (total < MIN_FARE) total = MIN_FARE;
-
-        // Return packed results as tuple-like via printing (keep student simple)
-        cout << fixed << setprecision(2);
-        cout << "\n--- " << (service==1 ? "STANDARD" : "POOL") << " ---\n";
-        cout << "Distance (km) : " << distance << "\n";
-        cout << "Hour          : " << hour << "\n";
-        cout << "ETA (minutes) : " << setprecision(1) << eta << setprecision(2) << "\n";
-        cout << "Surge         : x" << surge << "\n";
-        cout << "Booking Fee   : RM 1.20\n";
-        if (PROMO_ON==1) cout << "Promo Applied : -RM 3.00\n";
-        cout << "Estimated Fare: RM " << total << "\n";
-        return total; // so we can compare later
-    };
+    // round to nearest whole number
+    int finalFare = (int)round(total);
 
     // ---------- Output ----------
-    if (COMPARE_BOTH){
-        double totalStd = calcFare(1);
-        double totalPool= calcFare(2);
-        cout << "\n=== Recommendation ===\n";
-        if (totalPool + 0.01 < totalStd){
-            cout << "POOL is cheaper for this trip.\n";
-        } else if (totalStd + 0.01 < totalPool){
-            cout << "STANDARD is cheaper (and likely faster).\n";
-        } else {
-            cout << "Both are about the same price — choose based on time.\n";
-        }
-        // simple surge + short-distance tip
-        if (surgeMult(demand, supply, hour) >= 2.0 && distance <= 8.0)
-            cout << "Tip: High surge + short trip → POOL usually saves more.\n";
-    } else {
-        // pick one service to show (change 1→2 to print Pool only)
-        calcFare(1);
+    cout << "\n--- Fare Result ---\n";
+    cout << "Service       : " << (service == 1 ? "Standard" : "Pool") << "\n";
+    cout << "Distance (km) : " << distance << "\n";
+    cout << "ETA (minutes) : " << (int)round(eta) << "\n";
+    cout << "Surge         : x" << surge << "\n";
+    cout << "Tier Discount : " << (int)(disc*100) << "%\n";
+    cout << "Toll Charges  : RM " << toll << "\n";
+    cout << "Estimated Fare: RM " << finalFare << "\n";
+
+    // tip
+    if (surge >= 2.0 && distance <= 8.0 && service == 1) {
+        cout << "Tip: POOL may be cheaper now due to high surge on a short trip.\n";
+    } else if (service == 2) {
+        cout << "Note: STANDARD may be faster if you’re in a hurry.\n";
     }
 
     return 0;
