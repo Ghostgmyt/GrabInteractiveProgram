@@ -21,10 +21,11 @@ FEATURES
 - Fare recommendation: suggests Pool during high surge short trips
 - Error handling for invalid inputs (non-numeric, out-of-range values, incorrect yes/no answers)
 
-EXAMPLE TEST RUN
-----------------
+## EXAMPLE TEST RUN
+
+```text
 **********************************************
-        === GRAB Fare & ETA Estimator ===
+            GRAB FARE & ETA ESTIMATOR
 **********************************************
 
 Enter trip distance in km (0.5 - 100): 7
@@ -37,19 +38,21 @@ Are there any toll charges? (y/n): y
 Enter toll charges (RM): 2.50
 
 **********************************************
-                Fare Result
+                  FARE RESULT
 **********************************************
-Service       : Standard
-Distance (km) : 7
-ETA (minutes) : 19
-Surge         : x2.25
-Tier Discount : 7%
-Ride Fare     : RM 38
-Toll Charges  : RM 2.50
-Estimated Fare: RM 40.50
+Service        : Standard
+Distance (km)  : 7
+ETA (minutes)  : 19
+Surge          : x2.25
+Tier Discount  : 7%
+Ride Fare      : RM 38
+Toll Charges   : RM 2.50
+----------------------------------------------
+Estimated Fare : RM 40.50
 **********************************************
 
 Tip: POOL may be cheaper now due to high surge on a short trip.
+```
 
 TESTING AND DEBUGGING
 ---------------------
