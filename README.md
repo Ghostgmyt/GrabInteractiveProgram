@@ -1,11 +1,13 @@
-Grab Fare & ETA Estimator (C++)
-Overview
+==================================================
+GRAB FARE & ETA ESTIMATOR (C++)
+==================================================
 
+OVERVIEW
 This is a simple interactive program inspired by Grab ride-hailing. It estimates:
 
 ETA (minutes)
 
-Fare (RM) including surge multiplier, loyalty discounts, and optional tolls
+Fare (RM), including surge multiplier, loyalty discounts, and optional tolls
 
 The logic is based on our Part 1 Innovation Model (Disruptive Innovation):
 
@@ -15,7 +17,7 @@ Grab Pool Option → cheaper access point (low-end disruption)
 
 Tier Discounts → sustaining innovation for loyal users
 
-Features
+FEATURES
 
 Interactive input questions (distance, time, demand, supply, tier, service type, toll option)
 
@@ -29,7 +31,8 @@ Fare recommendation: suggests Pool during high surge short trips
 
 Error handling for invalid inputs (non-numeric, out-of-range values, incorrect yes/no answers)
 
-Example Test Run
+EXAMPLE TEST RUN
+
 **********************************************
         === GRAB Fare & ETA Estimator ===
 **********************************************
@@ -58,7 +61,8 @@ Estimated Fare: RM 40.50
 
 Tip: POOL may be cheaper now due to high surge on a short trip.
 
-Testing and Debugging
+
+TESTING AND DEBUGGING
 
 Invalid inputs (letters instead of numbers) are rejected, program re-prompts.
 
@@ -68,7 +72,7 @@ Toll question only accepts “y” or “n” (no accidental defaults).
 
 Validated calculations for surge, discount, tolls, and ETA.
 
-Project Files
+PROJECT FILES
 
 main.cpp → C++ source code for the estimator
 
