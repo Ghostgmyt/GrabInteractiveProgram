@@ -1,38 +1,28 @@
-==================================================
 GRAB FARE & ETA ESTIMATOR (C++)
-==================================================
-
+===============================
 OVERVIEW
-This is a simple interactive program inspired by Grab ride-hailing. It estimates:
-
-ETA (minutes)
-
-Fare (RM), including surge multiplier, loyalty discounts, and optional tolls
+--------
+This is a simple interactive program inspired by Grab ride-hailing. 
+It estimates:
+- ETA (minutes)
+- Fare (RM), including surge multiplier, loyalty discounts, and optional tolls
 
 The logic is based on our Part 1 Innovation Model (Disruptive Innovation):
-
-Dynamic Surge Pricing → adapts when demand is higher than supply
-
-Grab Pool Option → cheaper access point (low-end disruption)
-
-Tier Discounts → sustaining innovation for loyal users
+- Dynamic Surge Pricing → adapts when demand is higher than supply
+- Grab Pool Option → cheaper access point (low-end disruption)
+- Tier Discounts → sustaining innovation for loyal users
 
 FEATURES
-
-Interactive input questions (distance, time, demand, supply, tier, service type, toll option)
-
-Adjusted ETA for peak and off-peak traffic
-
-Surge multiplier (up to 3.5x)
-
-Loyalty tier discounts (Basic / Silver / Gold)
-
-Fare recommendation: suggests Pool during high surge short trips
-
-Error handling for invalid inputs (non-numeric, out-of-range values, incorrect yes/no answers)
+--------
+- Interactive input questions (distance, time, demand, supply, tier, service type, toll option)
+- Adjusted ETA for peak and off-peak traffic
+- Surge multiplier (up to 3.5x)
+- Loyalty tier discounts (Basic / Silver / Gold)
+- Fare recommendation: suggests Pool during high surge short trips
+- Error handling for invalid inputs (non-numeric, out-of-range values, incorrect yes/no answers)
 
 EXAMPLE TEST RUN
-
+----------------
 **********************************************
         === GRAB Fare & ETA Estimator ===
 **********************************************
@@ -61,19 +51,14 @@ Estimated Fare: RM 40.50
 
 Tip: POOL may be cheaper now due to high surge on a short trip.
 
-
 TESTING AND DEBUGGING
-
-Invalid inputs (letters instead of numbers) are rejected, program re-prompts.
-
-Out-of-range values (e.g., hour = 30) are rejected.
-
-Toll question only accepts “y” or “n” (no accidental defaults).
-
-Validated calculations for surge, discount, tolls, and ETA.
+---------------------
+- Invalid inputs (letters instead of numbers) are rejected, program re-prompts.
+- Out-of-range values (e.g., hour = 30) are rejected.
+- Toll question only accepts “y” or “n” (no accidental defaults).
+- Validated calculations for surge, discount, tolls, and ETA.
 
 PROJECT FILES
-
-main.cpp → C++ source code for the estimator
-
-README.md → documentation and explanation
+-------------
+- main.cpp → C++ source code for the estimator
+- README.md → documentation and explanation
