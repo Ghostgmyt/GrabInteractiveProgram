@@ -1,127 +1,189 @@
 #include <iostream>
-#include <cmath>    // for round
-#include <limits>   // for input validation
+#include <cmath>
+#include <limits>
 using namespace std;
 
 int main() {
-    cout << "=== GRAB Fare & ETA Estimator ===\n";
+    cout << "=== GRAB Fare & ETA Estimator ===" << endl;
 
-    // ---------- Variables ----------
-    double distance;    // km [0.5..100]
-    int hour;           // 0..23
-    int demand;         // 1..10
-    int supply;         // 1..10
-    int tier;           // 1=Basic, 2=Silver, 3=Gold
-    int service;        // 1=Standard, 2=Pool
-    double toll = 0.0;  // toll fee, default 0
+    // variables with safe defaults
+    double distance = 6.0;
+    int hour = 18, demand = 5, supply = 5, tier = 1, service = 1;
+    double toll = 0.0;
 
-    // ---------- Input with validation ----------
-    cout << "Enter trip distance in km (0.5 - 100): ";
-    while (!(cin >> distance) || distance < 0.5 || distance > 100) {
-        cout << "Error: Please enter a number between 0.5 and 100: ";
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    }
+    const int MAX_TRIES = 3;
 
-    cout << "Enter the hour of the day (0 - 23): ";
-    while (!(cin >> hour) || hour < 0 || hour > 23) {
-        cout << "Error: Please enter an integer between 0 and 23: ";
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    }
-
-    cout << "On a scale of 1 to 10, how high is the demand? ";
-    while (!(cin >> demand) || demand < 1 || demand > 10) {
-        cout << "Error: Please enter an integer between 1 and 10: ";
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    }
-
-    cout << "On a scale of 1 to 10, how many drivers (supply) are available? ";
-    while (!(cin >> supply) || supply < 1 || supply > 10) {
-        cout << "Error: Please enter an integer between 1 and 10: ";
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    }
-
-    cout << "Choose your tier (1 = Basic, 2 = Silver, 3 = Gold): ";
-    while (!(cin >> tier) || tier < 1 || tier > 3) {
-        cout << "Error: Please enter 1, 2, or 3: ";
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    }
-
-    cout << "Choose service type (1 = Standard, 2 = Pool): ";
-    while (!(cin >> service) || service < 1 || service > 2) {
-        cout << "Error: Please enter 1 or 2: ";
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    }
-
-    // ask if tolls apply
-    char tollChoice;
-    cout << "Are there any toll charges? (y/n): ";
-    while (!(cin >> tollChoice) || (tollChoice != 'y' && tollChoice != 'Y' && tollChoice != 'n' && tollChoice != 'N')) {
-        cout << "Error: Please enter y or n: ";
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    }
-
-    if (tollChoice == 'y' || tollChoice == 'Y') {
-        cout << "Enter toll charges (RM): ";
-        while (!(cin >> toll) || toll < 0) {
-            cout << "Error: Please enter a valid number (0 or higher): ";
+    // distance
+    {
+        int tries = 0;
+        cout << "Enter trip distance in km (0.5 - 100): " << endl;
+        while (!(cin >> distance) || distance < 0.5 || distance > 100.0) {
+            cout << "Error: Please enter a number between 0.5 and 100:" << endl;
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            if (++tries >= MAX_TRIES) {
+                cout << "(No input detected. Using default distance = 6.0 km)" << endl;
+                distance = 6.0;
+                break;
+            }
+        }
+    }
+
+    // hour
+    {
+        int tries = 0;
+        cout << "Enter the hour of the day (0 - 23): " << endl;
+        while (!(cin >> hour) || hour < 0 || hour > 23) {
+            cout << "Error: Please enter an integer between 0 and 23:" << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            if (++tries >= MAX_TRIES) {
+                cout << "(No input detected. Using default hour = 18)" << endl;
+                hour = 18;
+                break;
+            }
+        }
+    }
+
+    // demand
+    {
+        int tries = 0;
+        cout << "On a scale of 1 to 10, how high is the demand? " << endl;
+        while (!(cin >> demand) || demand < 1 || demand > 10) {
+            cout << "Error: Please enter an integer between 1 and 10:" << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            if (++tries >= MAX_TRIES) {
+                cout << "(No input detected. Using default demand = 5)" << endl;
+                demand = 5;
+                break;
+            }
+        }
+    }
+
+    // supply
+    {
+        int tries = 0;
+        cout << "On a scale of 1 to 10, how many drivers (supply) are available? " << endl;
+        while (!(cin >> supply) || supply < 1 || supply > 10) {
+            cout << "Error: Please enter an integer between 1 and 10:" << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            if (++tries >= MAX_TRIES) {
+                cout << "(No input detected. Using default supply = 5)" << endl;
+                supply = 5;
+                break;
+            }
+        }
+    }
+
+    // tier
+    {
+        int tries = 0;
+        cout << "Choose your tier (1 = Basic, 2 = Silver, 3 = Gold): " << endl;
+        while (!(cin >> tier) || tier < 1 || tier > 3) {
+            cout << "Error: Please enter 1, 2, or 3:" << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            if (++tries >= MAX_TRIES) {
+                cout << "(No input detected. Using default tier = 1 [Basic])" << endl;
+                tier = 1;
+                break;
+            }
+        }
+    }
+
+    // service
+    {
+        int tries = 0;
+        cout << "Choose service type (1 = Standard, 2 = Pool): " << endl;
+        while (!(cin >> service) || service < 1 || service > 2) {
+            cout << "Error: Please enter 1 or 2:" << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            if (++tries >= MAX_TRIES) {
+                cout << "(No input detected. Using default service = 1 [Standard])" << endl;
+                service = 1;
+                break;
+            }
+        }
+    }
+
+    // toll yes/no
+    char tollChoice = 'n';
+    {
+        int tries = 0;
+        cout << "Are there any toll charges? (y/n): " << endl;
+        while (!(cin >> tollChoice) || (tollChoice!='y' && tollChoice!='Y' && tollChoice!='n' && tollChoice!='N')) {
+            cout << "Error: Please enter y or n:" << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            if (++tries >= MAX_TRIES) {
+                cout << "(No input detected. Assuming no tolls)" << endl;
+                tollChoice = 'n';
+                break;
+            }
+        }
+    }
+    if (tollChoice == 'y' || tollChoice == 'Y') {
+        int tries = 0;
+        cout << "Enter toll charges (RM): " << endl;
+        while (!(cin >> toll) || toll < 0.0) {
+            cout << "Error: Please enter a valid number (0 or higher):" << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            if (++tries >= MAX_TRIES) {
+                cout << "(No input detected. Using default toll = 0.00)" << endl;
+                toll = 0.0;
+                break;
+            }
         }
     }
 
     // ---------- Logic ----------
     double base, perKm, perMin;
-    if (service == 1) { base = 3.0; perKm = 1.5; perMin = 0.3; } // Standard
-    else              { base = 2.0; perKm = 1.0; perMin = 0.2; } // Pool
+    if (service == 1) { base = 3.0; perKm = 1.5; perMin = 0.3; }
+    else              { base = 2.0; perKm = 1.0; perMin = 0.2; }
 
-    // ETA (minutes) with slower speed at peaks
-    double speed = 32.0;
-    if ((hour >= 7 && hour <= 9) || (hour >= 17 && hour <= 20)) speed = 22.0;
+    bool peak = (hour >= 7 && hour <= 9) || (hour >= 17 && hour <= 20);
+    double speed = peak ? 22.0 : 32.0;
     double eta = (distance / speed) * 60.0;
     if (eta < 5.0) eta = 5.0;
 
-    // surge
-    double ratio = (double)demand / (double)supply;
     double surge = 1.0;
+    double ratio = (double)demand / (double)supply;
     if (ratio > 1.0) surge += (ratio - 1.0);
-    if ((hour >= 7 && hour <= 9) || (hour >= 17 && hour <= 20)) surge += 0.25;
+    if (peak) surge += 0.25;
     if (surge > 3.5) surge = 3.5;
 
-    // tier discount
     double disc = 0.0;
     if (tier == 2) disc = 0.07;
     else if (tier == 3) disc = 0.15;
 
-    // fare calculation
     double subtotal   = (base + perKm * distance + perMin * eta) * surge;
     double discounted = subtotal * (1.0 - disc);
-
-    int rideFare = (int)round(discounted);  // round only ride fare
-    double finalFare = rideFare + toll;     // add toll as-is
+    int rideFare = (int)round(discounted);
+    double finalFare = rideFare + toll;
 
     // ---------- Output ----------
-    cout << "\n--- Fare Result ---\n";
-    cout << "Service       : " << (service == 1 ? "Standard" : "Pool") << "\n";
-    cout << "Distance (km) : " << distance << "\n";
-    cout << "ETA (minutes) : " << (int)round(eta) << "\n";
-    cout << "Surge         : x" << surge << "\n";
-    cout << "Tier Discount : " << (int)(disc*100) << "%\n";
-    cout << "Ride Fare     : RM " << rideFare << "\n";
-    if (toll > 0) cout << "Toll Charges  : RM " << toll << "\n";
-    cout << "Estimated Fare: RM " << finalFare << "\n";
+    cout << endl << "**********************************************" << endl;
+    cout << "                  FARE RESULT" << endl;
+    cout << "**********************************************" << endl;
+    cout << "Service        : " << (service==1 ? "Standard" : "Pool") << endl;
+    cout << "Distance (km)  : " << distance << endl;
+    cout << "ETA (minutes)  : " << (int)round(eta) << endl;
+    cout << "Surge          : x" << surge << endl;
+    cout << "Tier Discount  : " << (int)(disc*100) << "%" << endl;
+    cout << "Ride Fare      : RM " << rideFare << endl;
+    if (toll > 0.0) cout << "Toll Charges   : RM " << toll << endl;
+    cout << "----------------------------------------------" << endl;
+    cout << "Estimated Fare : RM " << finalFare << endl;
+    cout << "**********************************************" << endl;
 
-    // tip
     if (surge >= 2.0 && distance <= 8.0 && service == 1) {
-        cout << "Tip: POOL may be cheaper now due to high surge on a short trip.\n";
+        cout << "Tip: POOL may be cheaper now due to high surge on a short trip." << endl;
     } else if (service == 2) {
-        cout << "Note: STANDARD may be faster if you're in a hurry.\n";
+        cout << "Note: STANDARD may be faster if you're in a hurry." << endl;
     }
 
     return 0;
